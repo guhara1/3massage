@@ -91,9 +91,10 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.3; letter-spacing: -0.02em; font-weig
 .brand { display: flex; align-items: baseline; gap: 10px; font-weight: 800; font-size: 1.15rem; }
 .brand b { color: var(--gold); }
 .brand span { font-size: .72rem; letter-spacing: .18em; color: var(--text-3); text-transform: uppercase; }
-/* Uploaded logo (dark-green wordmark) on a light plate for legibility on the dark header */
-.brand { background: #f6f1e7; border: 1px solid rgba(201,168,106,.45); border-radius: 10px; padding: 6px 12px; }
-.brand-logo { display: block; height: 34px; width: auto; }
+/* Uploaded logo — rendered as a clean monochrome (white) mark on the dark header.
+   (원본 글자가 딥그린이라 다크 배경에서 안 보여, 흰색 단색 처리로 가독성 확보) */
+.brand { display: flex; align-items: center; }
+.brand-logo { display: block; height: 44px; width: auto; filter: brightness(0) invert(1); }
 
 /* Desktop menu */
 .nav-menu { display: flex; align-items: center; gap: 4px; }
