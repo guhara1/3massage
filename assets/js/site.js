@@ -182,7 +182,7 @@
       '<footer class="site-footer"><div class="container">' +
         '<div class="footer-grid">' +
           '<div class="footer-brand"><b>쓰리 마사지</b>' +
-            '<p>수원·동탄·오산·용인·분당 일부 권역을 중심으로 한 방문 마사지 예약 안내 서비스입니다. ' +
+            '<p>수원·동탄·오산·용인·분당 일부 권역을 중심으로 한 출장마사지 예약 안내 서비스입니다. ' +
             '휴식과 컨디션 관리를 위한 케어이며, 의료·치료 목적의 서비스가 아닙니다.</p></div>' +
           '<div><h4>서비스</h4>' +
             '<a href="/service/massage.html">출장마사지 안내</a>' +
