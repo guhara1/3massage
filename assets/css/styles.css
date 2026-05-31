@@ -86,7 +86,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.3; letter-spacing: -0.02em; font-weig
 }
 .nav {
   display: flex; align-items: center; justify-content: space-between;
-  height: 68px; gap: 24px;
+  height: 84px; gap: 24px;
 }
 .brand { display: flex; align-items: baseline; gap: 10px; font-weight: 800; font-size: 1.15rem; }
 .brand b { color: var(--gold); }
@@ -94,7 +94,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.3; letter-spacing: -0.02em; font-weig
 /* Uploaded logo — rendered as a clean monochrome (white) mark on the dark header.
    (원본 글자가 딥그린이라 다크 배경에서 안 보여, 흰색 단색 처리로 가독성 확보) */
 .brand { display: flex; align-items: center; }
-.brand-logo { display: block; height: 44px; width: auto; filter: brightness(0) invert(1); }
+.brand-logo { display: block; height: 60px; width: auto; filter: brightness(0) invert(1); }
 
 /* Desktop menu */
 .nav-menu { display: flex; align-items: center; gap: 4px; }
@@ -163,7 +163,7 @@ body.menu-open .nav-toggle span::after { top: 0; transform: rotate(-45deg); }
    Mobile drawer (accordion)
    ========================================================= */
 .mobile-drawer {
-  position: fixed; inset: 68px 0 0 0; z-index: 99;
+  position: fixed; inset: 84px 0 0 0; z-index: 99;
   background: var(--bg); border-top: 1px solid var(--line);
   transform: translateX(100%); transition: transform .3s var(--ease);
   overflow-y: auto; padding: 14px 18px 80px;
@@ -403,6 +403,11 @@ body.menu-open .mobile-drawer { transform: translateX(0); }
   .cta-band { padding: 28px 20px; }
   .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
   .nav-cta .btn { padding: 9px 14px; font-size: .9rem; }
+}
+@media (max-width: 620px) {
+  .nav { height: 66px; }
+  .brand-logo { height: 46px; }
+  .mobile-drawer { top: 66px; }
 }
 @media (min-width: 941px) and (max-width: 1100px) {
   .dropdown--mega { min-width: 540px; }
