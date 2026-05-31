@@ -250,6 +250,92 @@
     document.body.appendChild(bar);
   }
 
+  /* ---------- Premium magazine article enhancer ---------- */
+  function enhanceArticle() {
+    var article = document.querySelector("article.prose");
+    if (!article) return;
+    if (document.querySelector(".reading-progress")) return;   // already enhanced
+    document.body.classList.add("is-article");
+
+    // reading progress bar
+    var rp = el('<div class="reading-progress"><i></i></div>');
+    document.body.appendChild(rp);
+    var fill = rp.firstChild;
+    function prog() {
+      var h = document.documentElement;
+      var max = h.scrollHeight - h.clientHeight;
+      fill.style.width = (max > 0 ? (h.scrollTop / max * 100) : 0) + "%";
+    }
+    window.addEventListener("scroll", prog, { passive: true });
+    window.addEventListener("resize", prog); prog();
+
+    // byline: avatar + reading time
+    var byline = document.querySelector(".page-head .byline");
+    if (byline) {
+      byline.insertAdjacentHTML("afterbegin",
+        '<span class="byline-ava"><img src="/favicon.svg" alt="" width="26" height="26"></span>');
+      var chars = (article.textContent || "").replace(/\s/g, "").length;
+      var mins = Math.max(2, Math.round(chars / 500));
+      byline.insertAdjacentHTML("beforeend",
+        '<span class="byline-sep">·</span> 읽는 시간 약 ' + mins + "분");
+    }
+
+    // table of contents (section h3) + scrollspy
+    var heads = Array.prototype.slice.call(article.querySelectorAll("h3"));
+    if (heads.length >= 2) {
+      var layout = document.createElement("div");
+      layout.className = "article-layout";
+      article.parentNode.insertBefore(layout, article);
+      layout.appendChild(article);
+      var toc = el('<aside class="toc"><p class="toc-title">목차</p><nav class="toc-list"></nav></aside>');
+      var list = toc.querySelector(".toc-list");
+      var links = heads.map(function (h, i) {
+        if (!h.id) h.id = "sec-" + (i + 1);
+        var a = document.createElement("a");
+        a.href = "#" + h.id; a.textContent = h.textContent;
+        list.appendChild(a); return a;
+      });
+      layout.appendChild(toc);
+      var spy = function () {
+        var cur = -1;
+        heads.forEach(function (h, i) { if (h.getBoundingClientRect().top <= 140) cur = i; });
+        links.forEach(function (a, i) { a.classList.toggle("active", i === cur); });
+      };
+      window.addEventListener("scroll", spy, { passive: true }); spy();
+    }
+
+    injectRelatedPosts(article);
+  }
+
+  function injectRelatedPosts(article) {
+    var container = article.closest(".container");
+    if (!container) return;
+    var slug = (location.pathname.split("/").pop() || "").replace(".html", "");
+    var catName = ((document.querySelector(".page-head .eyebrow") || {}).textContent || "").trim();
+    var s = document.createElement("script");
+    s.src = "/assets/js/posts.js";
+    s.onload = function () {
+      if (!window.POSTS || !window.SITE) return;
+      var catSlug = (window.SITE.MAG_CATS.filter(function (c) { return c.name === catName; })[0] || {}).slug;
+      var others = window.POSTS.filter(function (p) { return p.slug !== slug; });
+      var picked = others.filter(function (p) { return p.cat === catSlug; }).slice(0, 3);
+      others.forEach(function (p) { if (picked.length < 3 && picked.indexOf(p) < 0) picked.push(p); });
+      if (!picked.length) return;
+      var cards = picked.map(function (p) {
+        var cn = (window.SITE.MAG_CATS.filter(function (c) { return c.slug === p.cat; })[0] || {}).name || "";
+        return '<a class="card post-card" href="/magazine/' + p.slug + '.html">' +
+          '<span class="post-cat">' + cn + '</span><h3>' + p.title + '</h3>' +
+          '<p>' + p.excerpt + '</p>' +
+          (p.date ? '<span class="post-date">발행 ' + p.date + '</span>' : '') +
+          '<span class="card-link">읽어보기</span></a>';
+      }).join("");
+      var sec = el('<section class="related-posts"><h2>함께 보면 좋은 글</h2>' +
+        '<div class="grid grid-3">' + cards + '</div></section>');
+      container.appendChild(sec);
+    };
+    document.body.appendChild(s);
+  }
+
   /* ---------- expose data for page scripts ---------- */
   window.SITE = { REGIONS: REGIONS, MAG_CATS: MAG_CATS, PHONE_DISPLAY: PHONE_DISPLAY, PHONE_TEL: PHONE_TEL };
 
@@ -258,5 +344,6 @@
     renderFooter();
     wireFaq();
     renderMobileCall();
+    enhanceArticle();
   });
 })();

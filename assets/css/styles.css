@@ -409,6 +409,54 @@ body.menu-open .mobile-drawer { transform: translateX(0); }
   .brand-logo { height: 46px; }
   .mobile-drawer { top: 66px; }
 }
+
+/* =========================================================
+   Premium magazine article (applied to <article class="prose">,
+   plus body.is-article added by site.js enhancer)
+   ========================================================= */
+.reading-progress { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 300; background: transparent; pointer-events: none; }
+.reading-progress i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--gold), var(--gold-soft)); box-shadow: 0 0 10px rgba(201,168,106,.7); transition: width .12s linear; }
+
+body.is-article .page-head { padding: 54px 0 30px;
+  background: radial-gradient(900px 360px at 82% -30%, rgba(201,168,106,.16), transparent 60%), var(--bg); }
+body.is-article .page-head .eyebrow { display: inline-block; margin-bottom: 14px; padding: 7px 15px; border-radius: 999px;
+  border: 1px solid var(--gold); background: var(--gold-dim); color: var(--gold-soft); letter-spacing: .03em; text-transform: none; }
+body.is-article .page-head h1 { font-size: clamp(1.9rem, 4.4vw, 2.9rem); line-height: 1.25; max-width: 24ch; }
+
+/* Byline + avatar */
+body.is-article .byline { align-items: center; gap: 10px; margin-top: 24px; font-size: .92rem; }
+.byline-ava { width: 42px; height: 42px; border-radius: 50%; background: #0c1016; border: 1px solid var(--line);
+  display: inline-grid; place-items: center; overflow: hidden; flex: none; }
+.byline-ava img { width: 26px; height: 26px; }
+body.is-article .byline .byline-author { color: var(--text); font-weight: 700; }
+
+/* Sticky TOC layout (desktop) */
+.article-layout { display: grid; grid-template-columns: minmax(0,1fr) 232px; gap: 54px; align-items: start; }
+.toc { position: sticky; top: 110px; }
+.toc-title { font-size: .76rem; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 10px; }
+.toc-list { display: flex; flex-direction: column; border-left: 1px solid var(--line); }
+.toc-list a { padding: 8px 14px; margin-left: -1px; border-left: 2px solid transparent; color: var(--text-3); font-size: .9rem; line-height: 1.45; }
+.toc-list a:hover { color: var(--gold-soft); }
+.toc-list a.active { color: var(--gold-soft); border-left-color: var(--gold); font-weight: 600; }
+
+/* Premium body typography — scoped to magazine articles only */
+article.prose { font-size: 1.07rem; line-height: 1.95; }
+article.prose > p:first-child { font-size: 1.16rem; color: var(--text); }
+article.prose h3 { font-size: 1.4rem; color: var(--text); margin-top: 46px; padding-top: 8px; position: relative; scroll-margin-top: 104px; }
+article.prose h3::before { content: ""; position: absolute; left: 0; top: -4px; width: 34px; height: 3px; border-radius: 2px; background: var(--gold); }
+article.prose p { color: var(--text-2); }
+article.prose p + p { margin-top: 16px; }
+article.prose a { color: var(--gold-soft); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(201,168,106,.45); }
+article.prose a:hover { text-decoration-color: var(--gold); }
+
+/* Related articles grid on article pages */
+.related-posts { margin-top: 44px; }
+.related-posts > h2 { font-size: 1.3rem; margin-bottom: 20px; }
+
+@media (max-width: 960px) {
+  .article-layout { grid-template-columns: 1fr; gap: 0; }
+  .toc { display: none; }
+}
 @media (min-width: 941px) and (max-width: 1100px) {
   .dropdown--mega { min-width: 540px; }
 }
