@@ -10,6 +10,9 @@
   <meta property="og:title" content="매거진 | 쓰리 마사지">
   <meta property="og:description" content="직장인 피로 관리·가족 케어·지역별 웰니스·이용 가이드·안전 가이드 콘텐츠.">
   <meta property="og:locale" content="ko_KR">
+  <meta property="og:image" content="https://www.3massage.co.kr/assets/img/og-default.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.3massage.co.kr/assets/img/og-default.svg">
   <meta name="theme-color" content="#0c1016">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
@@ -59,12 +62,15 @@
         return '<a class="cat-pill' + (c.slug===active?' active':'') + '" href="?cat=' + c.slug + '">' + c.name + '</a>';
       }).join("");
 
-      var list = (active === "all") ? window.POSTS : window.POSTS.filter(function(p){return p.cat===active;});
+      // POSTS is newest-first; sort defensively by dateISO desc
+      var sorted = window.POSTS.slice().sort(function(a,b){return (b.dateISO||"").localeCompare(a.dateISO||"");});
+      var list = (active === "all") ? sorted : sorted.filter(function(p){return p.cat===active;});
       document.getElementById("empty").style.display = list.length ? "none" : "block";
       document.getElementById("posts").innerHTML = list.map(function (p) {
         return '<a class="card post-card" href="/magazine/' + p.slug + '.html">' +
           '<span class="post-cat">' + catName(p.cat) + '</span>' +
           '<h3>' + p.title + '</h3><p>' + p.excerpt + '</p>' +
+          (p.date ? '<span class="post-date">발행 ' + p.date + '</span>' : '') +
           '<span class="card-link">읽어보기</span></a>';
       }).join("");
 

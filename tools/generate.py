@@ -9,11 +9,20 @@ single data model. Each page carries long-form, per-page unique copy
 Run:  python3 tools/generate.py
 """
 import os, html, json
+from datetime import date, timedelta
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE = "https://www.3massage.co.kr"   # canonical base — change to the live domain
 PHONE_DISPLAY = "0508-202-4717"
 PHONE_TEL = "tel:05082024717"
+
+# Trust / E-E-A-T constants
+AUTHOR = "쓰리 마사지 편집팀"
+OG_IMAGE = BASE + "/assets/img/og-default.svg"   # 권장: 1200x630 raster로 교체
+LOGO_IMAGE = BASE + "/assets/img/logo.svg"
+# 매거진 발행일 기준(최신글부터 역순으로 부여)
+PUB_BASE = date(2026, 5, 29)
+PUB_GAP_DAYS = 3
 
 
 def won(n):
@@ -1600,9 +1609,10 @@ AREA_FAQ2 = {
 # ---------------------------------------------------------------------------
 # HTML scaffold
 # ---------------------------------------------------------------------------
-def page(path, title, description, body, jsonld=None):
+def page(path, title, description, body, jsonld=None, image=None, og_type="website"):
     """path is like 'areas/suwon.html' (relative to repo root)."""
     canonical = BASE + "/" + path.replace("index.html", "")
+    image = image or OG_IMAGE
     jl = ""
     for block in (jsonld or []):
         jl += '\n  <script type="application/ld+json">' + block + "</script>"
@@ -1614,10 +1624,14 @@ def page(path, title, description, body, jsonld=None):
   <title>{html.escape(title)}</title>
   <meta name="description" content="{html.escape(description)}">
   <link rel="canonical" href="{canonical}">
-  <meta property="og:type" content="website">
+  <meta property="og:type" content="{og_type}">
   <meta property="og:title" content="{html.escape(title)}">
   <meta property="og:description" content="{html.escape(description)}">
   <meta property="og:locale" content="ko_KR">
+  <meta property="og:url" content="{canonical}">
+  <meta property="og:image" content="{image}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="{image}">
   <meta name="theme-color" content="#0c1016">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
@@ -1816,14 +1830,32 @@ def render_area(a):
 # ---------------------------------------------------------------------------
 # Magazine article (info-focused, long-form)
 # ---------------------------------------------------------------------------
-def render_article(slug, title, cat, body_paras, related_area=None):
+def render_article(slug, title, cat, body_paras, related_area=None,
+                   date_iso=None, date_disp=None):
     url = f"/magazine/{slug}.html"
     prose = render_prose(body_paras)
     crumbs = [("홈", "/"), ("매거진", "/magazine/"), (title, url)]
+    region_note = ""
+    if related_area:
+        region_note = (f"{related_area['region']} {related_area['ko']} 등 "
+                       f"운영지역에서 방문 케어를 안내하며 ")
+    byline = (f'<p class="byline"><span class="byline-author">{html.escape(AUTHOR)}</span>'
+              f'<span class="byline-sep">·</span> 발행 <time datetime="{date_iso}">{date_disp}</time>'
+              f'<span class="byline-sep">·</span> 업데이트 <time datetime="{date_iso}">{date_disp}</time></p>')
+    # E-E-A-T: Who / How / Why + 운영 경험(Experience) 신뢰 박스
+    author_box = f"""
+      <aside class="author-box">
+        <h2>이 글은 이렇게 만들었습니다</h2>
+        <p><strong>누가</strong> · {html.escape(AUTHOR)}이 작성했습니다. {region_note}현장에서 고객에게 직접 안내드린 경험을 바탕으로 합니다.</p>
+        <p><strong>어떻게</strong> · 실제 전화 상담과 방문 예약 과정에서 반복적으로 받은 질문·안내 사례를 정리하고, 일반적인 휴식·컨디션 관리 정보를 더해 작성했습니다.</p>
+        <p><strong>왜</strong> · 예약 전 궁금증을 줄이고, 생활 속에서 피로를 관리하는 데 실질적인 도움을 드리기 위해서입니다. 검색 노출만을 위한 글이 아닙니다.</p>
+        <p class="muted">본 콘텐츠는 휴식·컨디션 관리를 돕는 일반 정보이며, 의료적 진단·치료를 대체하지 않습니다. 통증이 지속되면 의료기관 상담을 권장합니다.
+        작성·운영 책임: 쓰리 마사지 (<a href="/about/">소개</a> · <a href="/about/contact.html">문의</a> · {PHONE_DISPLAY})</p>
+      </aside>"""
     related = ""
     if related_area:
         related = f"""
-      <div class="cta-band" style="text-align:left;margin-top:40px">
+      <div class="cta-band" style="text-align:left;margin-top:32px">
         <h2 style="font-size:1.2rem">{html.escape(related_area['ko'])} 방문 예약이 필요하다면</h2>
         <p>이 글은 생활 정보 안내입니다. 실제 예약과 가능 시간은 {html.escape(related_area['ko'])} 지역 페이지에서 확인하세요.</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
@@ -1836,49 +1868,71 @@ def render_article(slug, title, cat, body_paras, related_area=None):
       {crumb_html(crumbs)}
       <span class="eyebrow">{html.escape(CATS[cat])}</span>
       <h1>{html.escape(title)}</h1>
+      {byline}
     </div></section>
     <section class="section"><div class="container">
       <article class="prose">
         {prose}
-        <p class="muted">본 콘텐츠는 휴식과 컨디션 관리를 돕기 위한 일반적인 생활 정보이며, 의료적 진단·치료를 대체하지 않습니다.
-        통증이 지속되면 의료기관 상담을 권장합니다.</p>
       </article>
+      {author_box}
       {related}
     </div></section>
   </main>
 """
     first_para = next((p for p in body_paras if not p.startswith("## ")), "")
     desc = first_para[:115].strip()
-    ld = ('{"@context":"https://schema.org","@type":"Article","headline":"%s",'
-          '"articleSection":"%s","inLanguage":"ko-KR",'
-          '"publisher":{"@type":"Organization","name":"쓰리 마사지"},"url":"%s"}'
-          % (title.replace('"', ''), CATS[cat], BASE + url))
+    ld = ('{"@context":"https://schema.org","@type":"BlogPosting",'
+          '"headline":%s,"articleSection":%s,"inLanguage":"ko-KR",'
+          '"datePublished":"%s","dateModified":"%s",'
+          '"author":{"@type":"Organization","name":%s,"url":"%s"},'
+          '"publisher":{"@type":"Organization","name":"쓰리 마사지",'
+          '"logo":{"@type":"ImageObject","url":"%s"}},'
+          '"image":"%s","mainEntityOfPage":{"@type":"WebPage","@id":"%s"},"url":"%s"}'
+          % (json.dumps(title, ensure_ascii=False), json.dumps(CATS[cat], ensure_ascii=False),
+             date_iso, date_iso, json.dumps(AUTHOR, ensure_ascii=False), BASE + "/about/",
+             LOGO_IMAGE, OG_IMAGE, BASE + url, BASE + url))
     page(f"magazine/{slug}.html", f"{title} | 쓰리 마사지 매거진", desc, body,
-         jsonld=[breadcrumb_ld(crumbs), ld])
+         jsonld=[breadcrumb_ld(crumbs), ld], og_type="article")
 
 
 # ---------------------------------------------------------------------------
 # Build
 # ---------------------------------------------------------------------------
 def build():
+    # 1) Area (conversion) pages
     for a in AREAS:
         render_area(a)
-        art = a["article"]
-        render_article(a["slug"], art["title"], art["cat"],
-                       with_extra(a["slug"], art["body"]), related_area=a)
-    for p in EXTRA_POSTS:
-        render_article(p["slug"], p["title"], p["cat"], with_extra(p["slug"], p["body"]))
-    print(f"Generated {len(AREAS)} area pages, {len(AREAS)+len(EXTRA_POSTS)} magazine articles.")
 
-    posts = []
+    # 2) Ordered magazine posts with publish dates (newest first).
+    ordered = []
     for a in AREAS:
         art = a["article"]
-        posts.append({"slug": a["slug"], "title": art["title"], "cat": art["cat"], "excerpt": art["excerpt"]})
+        ordered.append({"slug": a["slug"], "title": art["title"], "cat": art["cat"],
+                        "excerpt": art["excerpt"], "body": with_extra(a["slug"], art["body"]),
+                        "area": a})
     for p in EXTRA_POSTS:
-        posts.append({"slug": p["slug"], "title": p["title"], "cat": p["cat"], "excerpt": p["excerpt"]})
+        ordered.append({"slug": p["slug"], "title": p["title"], "cat": p["cat"],
+                        "excerpt": p["excerpt"], "body": with_extra(p["slug"], p["body"]),
+                        "area": None})
+    for i, post in enumerate(ordered):
+        dt = PUB_BASE - timedelta(days=i * PUB_GAP_DAYS)
+        post["date_iso"] = dt.isoformat()
+        post["date_disp"] = dt.strftime("%Y.%m.%d")
+
+    for post in ordered:
+        render_article(post["slug"], post["title"], post["cat"], post["body"],
+                       related_area=post["area"], date_iso=post["date_iso"],
+                       date_disp=post["date_disp"])
+    print(f"Generated {len(AREAS)} area pages, {len(ordered)} magazine articles.")
+
+    # 3) Posts manifest (newest first) for index/home — includes publish date
+    ordered.sort(key=lambda p: p["date_iso"], reverse=True)
+    posts = [{"slug": p["slug"], "title": p["title"], "cat": p["cat"],
+              "excerpt": p["excerpt"], "date": p["date_disp"], "dateISO": p["date_iso"]}
+             for p in ordered]
     with open(os.path.join(ROOT, "assets/js/posts.js"), "w", encoding="utf-8") as f:
         f.write("window.POSTS = " + json.dumps(posts, ensure_ascii=False, indent=2) + ";\n")
-    print(f"Wrote posts manifest with {len(posts)} entries.")
+    print(f"Wrote posts manifest with {len(posts)} entries (newest first).")
 
     write_sitemap()
 

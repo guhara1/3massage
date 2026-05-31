@@ -10,6 +10,9 @@
   <meta property="og:title" content="쓰리 마사지 | 수원·동탄·오산·용인·분당 출장마사지 예약 안내">
   <meta property="og:description" content="수원·동탄·오산·용인·분당 일부 운영지역 방문 마사지 예약 안내. 휴식과 컨디션 관리를 위한 건전한 케어.">
   <meta property="og:locale" content="ko_KR">
+  <meta property="og:image" content="https://www.3massage.co.kr/assets/img/og-default.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.3massage.co.kr/assets/img/og-default.svg">
   <meta name="theme-color" content="#0c1016">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
@@ -206,11 +209,13 @@
       }
       var p = document.getElementById("home-posts");
       if (p && window.POSTS) {
-        p.innerHTML = window.POSTS.slice(0, 3).map(function (post) {
+        var latest = window.POSTS.slice().sort(function(a,b){return (b.dateISO||"").localeCompare(a.dateISO||"");}).slice(0, 3);
+        p.innerHTML = latest.map(function (post) {
           var catName = (window.SITE.MAG_CATS.filter(function(c){return c.slug===post.cat;})[0]||{}).name || "";
           return '<a class="card post-card" href="/magazine/' + post.slug + '.html">' +
             '<span class="post-cat">' + catName + '</span>' +
             '<h3>' + post.title + '</h3><p>' + post.excerpt + '</p>' +
+            (post.date ? '<span class="post-date">발행 ' + post.date + '</span>' : '') +
             '<span class="card-link">읽어보기</span></a>';
         }).join("");
       }
