@@ -196,6 +196,8 @@
             '<a href="/about/business.html">사업자 정보</a>' +
             '<a href="' + PHONE_TEL + '">전화예약 ' + PHONE_DISPLAY + "</a></div>" +
         "</div>" +
+        '<div class="footer-biz">상호 쓰리 마사지 · 운영사 YH LAB · 대표 김유환 · ' +
+          '사업자등록번호 815-26-00585 · 경기도 파주시 청석로 268 · 전화예약 ' + PHONE_DISPLAY + '</div>' +
         '<div class="footer-bottom">' +
           "<div>© " + year + ' 쓰리 마사지. All rights reserved.</div>' +
           '<div class="footer-legal">' +
@@ -238,6 +240,14 @@
     });
   }
 
+  /* ---------- Mobile sticky call bar (전화 전환) ---------- */
+  function renderMobileCall() {
+    if (document.querySelector(".mobile-call")) return;
+    var bar = el('<a class="mobile-call" href="' + PHONE_TEL + '" aria-label="전화예약 ' + PHONE_DISPLAY + '">' +
+      '<span class="mobile-call-ico" aria-hidden="true">📞</span> 전화예약 ' + PHONE_DISPLAY + "</a>");
+    document.body.appendChild(bar);
+  }
+
   /* ---------- expose data for page scripts ---------- */
   window.SITE = { REGIONS: REGIONS, MAG_CATS: MAG_CATS, PHONE_DISPLAY: PHONE_DISPLAY, PHONE_TEL: PHONE_TEL };
 
@@ -245,5 +255,6 @@
     renderHeader();
     renderFooter();
     wireFaq();
+    renderMobileCall();
   });
 })();

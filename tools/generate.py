@@ -1947,7 +1947,7 @@ def write_sitemap():
         "service/process.html", "service/checklist.html",
         "areas/", "magazine/",
         "faq/reservation.html", "faq/area.html", "faq/before-use.html",
-        "about/", "about/contact.html",
+        "about/", "about/business.html", "about/contact.html",
     ]
     urls += ["/" + s for s in static]
     for a in AREAS:
@@ -1963,8 +1963,7 @@ def write_sitemap():
                f"{items}\n</urlset>\n")
     with open(os.path.join(ROOT, "sitemap.xml"), "w", encoding="utf-8") as f:
         f.write(sitemap)
-    robots = ("User-agent: *\nAllow: /\n"
-              "Disallow: /about/business.html\n\n"
+    robots = ("User-agent: *\nAllow: /\n\n"
               f"Sitemap: {BASE}/sitemap.xml\n")
     with open(os.path.join(ROOT, "robots.txt"), "w", encoding="utf-8") as f:
         f.write(robots)
