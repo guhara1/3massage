@@ -1633,6 +1633,8 @@ def page(path, title, description, body, jsonld=None, image=None, og_type="websi
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:image" content="{image}">
   <meta name="theme-color" content="#0c1016">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/favicon.svg">
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
   <link rel="stylesheet" href="/assets/css/styles.css">{jl}
