@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /about/business.html
+
+Sitemap: https://www.3massage.co.kr/sitemap.xml
