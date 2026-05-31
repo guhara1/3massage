@@ -25,7 +25,7 @@
     ]},
     { key: "yongin-area", name: "용인권", areas: [
       { ko: "용인",   slug: "yongin" },
-      { ko: "처인구", slug: "cheoin" },
+      { ko: "처인구", slug: "cheoin-gu" },
       { ko: "수지",   slug: "suji" },
       { ko: "포곡",   slug: "pogok" },
       { ko: "신갈",   slug: "singal" },
