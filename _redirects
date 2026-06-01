@@ -1,0 +1,8 @@
+# Cloudflare Pages 리다이렉트 규칙
+# (위에서부터 매칭, 301 = 영구 이동)
+
+# www → 루트 도메인(non-www)로 통일
+https://www.3massage.club/*    https://3massage.club/:splat    301!
+
+# Pages 기본 도메인(*.pages.dev)으로 들어온 트래픽도 정식 도메인으로
+https://:project.pages.dev/*   https://3massage.club/:splat    301

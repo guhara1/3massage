@@ -79,3 +79,23 @@
 python3 -m http.server 8000
 # http://localhost:8000
 ```
+
+## 배포 (Cloudflare Pages)
+
+정적 사이트라 **빌드 명령 없이** 그대로 배포됩니다.
+
+1. Cloudflare Pages → **Create a project** → Git 저장소(`guhara1/3massage`) 연결
+2. 빌드 설정:
+   - Framework preset: **None**
+   - Build command: *(비움)*
+   - Build output directory: **`/`** (루트)
+   - (콘텐츠 수정 시 `python3 tools/generate.py`로 재생성 후 커밋 — Pages 빌드 단계에서 파이썬을 돌리지 않음)
+3. 배포 후 **Custom domains** 에 `3massage.club` 연결(루트 도메인). www는 아래 리다이렉트로 흡수.
+4. 도메인 정규화는 리포의 **`_redirects`** 가 처리:
+   - `www.3massage.club/*` → `3massage.club/*` (301)
+   - `*.pages.dev/*` → `3massage.club/*` (301)
+5. 캐싱·보안 헤더는 **`_headers`** 가 처리(정적 자산 장기 캐시, 사이트맵·RSS 짧은 캐시).
+
+> 사이트 전체 canonical이 **non-www(`https://3massage.club`)** 기준입니다.
+> 서치콘솔/네이버 속성도 `https://3massage.club` 으로 등록하고 사이트맵·RSS를 제출하세요.
+
