@@ -304,10 +304,12 @@
       window.addEventListener("scroll", spy, { passive: true }); spy();
     }
 
-    injectRelatedPosts(article);
+    // 관련 글은 이제 정적 HTML(generate.py)로 렌더되므로 JS 주입은 비활성화.
+    // (크롤러 친화적인 서버사이드 내부링크 우선)
   }
 
-  function injectRelatedPosts(article) {
+  function injectRelatedPosts(article) {  // (사용 안 함) 보존용
+    return;
     var container = article.closest(".container");
     if (!container) return;
     var slug = (location.pathname.split("/").pop() || "").replace(".html", "");

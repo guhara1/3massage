@@ -2235,9 +2235,12 @@ def render_area(a):
         <p style="margin:0 0 6px">{html.escape(art['excerpt'])} 예약 정보가 아닌 생활 속 피로 관리 이야기는 매거진에서 다룹니다.</p>
         <a class="card-link" href="/magazine/{slug}.html">매거진에서 읽기</a>
       </div>
-      <p style="margin-top:18px"><a class="card-link" href="/areas/">전체 가능지역 보기</a>
-        &nbsp;·&nbsp; <a class="card-link" href="/faq/reservation.html">자주 묻는 질문</a>
-        &nbsp;·&nbsp; <a class="card-link" href="/service/price.html">가격표 보기</a></p>
+      <p style="margin-top:18px">함께 확인하세요 ·
+        <a class="card-link" href="/areas/">전체 가능지역</a> ·
+        <a class="card-link" href="/service/process.html">이용절차</a> ·
+        <a class="card-link" href="/service/price.html">가격표</a> ·
+        <a class="card-link" href="/faq/reservation.html">예약 FAQ</a> ·
+        <a class="card-link" href="/faq/area.html">지역 FAQ</a></p>
     </div></section>
 
     <section class="section--tight"><div class="container">
@@ -2272,6 +2275,37 @@ def render_area(a):
 # ---------------------------------------------------------------------------
 # Magazine article (info-focused, long-form)
 # ---------------------------------------------------------------------------
+POSTS_INDEX = []   # populated in build(); used for static related-post links
+
+
+def related_posts_html(slug, cat):
+    """Static HTML 'related posts' block (같은 카테고리 우선, 그다음 가이드/안전 글).
+    Server-rendered so crawlers see contextual internal links, not JS-only."""
+    others = [p for p in POSTS_INDEX if p["slug"] != slug]
+    same = [p for p in others if p["cat"] == cat]
+    rest = [p for p in others if p["cat"] != cat]
+    # 가이드·안전 카테고리 글을 보조로 우선 노출(횡적 연결 강화)
+    helper = [p for p in rest if p["cat"] in ("usage-guide", "safety-guide")]
+    picked = (same + helper + rest)
+    seen, out = set(), []
+    for p in picked:
+        if p["slug"] in seen:
+            continue
+        seen.add(p["slug"]); out.append(p)
+        if len(out) == 4:
+            break
+    if not out:
+        return ""
+    cards = "".join(
+        f'<a class="card post-card" href="/magazine/{p["slug"]}.html">'
+        f'<span class="post-cat">{html.escape(CATS[p["cat"]])}</span>'
+        f'<h3>{html.escape(p["title"])}</h3>'
+        f'<span class="card-link">읽어보기</span></a>'
+        for p in out)
+    return (f'\n      <section class="related-posts"><h2>함께 보면 좋은 글</h2>'
+            f'<div class="grid grid-3">{cards}</div></section>')
+
+
 def render_article(slug, title, cat, body_paras, related_area=None,
                    date_iso=None, date_disp=None):
     url = f"/magazine/{slug}.html"
@@ -2318,6 +2352,7 @@ def render_article(slug, title, cat, body_paras, related_area=None,
       </article>
       {author_box}
       {related}
+      {related_posts_html(slug, cat)}
     </div></section>
   </main>
 """
@@ -2360,6 +2395,10 @@ def build():
         dt = PUB_BASE - timedelta(days=i * PUB_GAP_DAYS)
         post["date_iso"] = dt.isoformat()
         post["date_disp"] = dt.strftime("%Y.%m.%d")
+
+    # Global registry so each article can statically link to related posts (SEO 내부링크)
+    global POSTS_INDEX
+    POSTS_INDEX = [{"slug": p["slug"], "title": p["title"], "cat": p["cat"]} for p in ordered]
 
     for post in ordered:
         render_article(post["slug"], post["title"], post["cat"], post["body"],
