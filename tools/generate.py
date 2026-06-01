@@ -18,8 +18,8 @@ PHONE_TEL = "tel:05082024717"
 
 # Trust / E-E-A-T constants
 AUTHOR = "쓰리 마사지 편집팀"
-OG_IMAGE = BASE + "/assets/img/og-default.svg"   # 권장: 1200x630 raster로 교체
-LOGO_IMAGE = BASE + "/assets/img/THREE_MASSAGE_transparent_logo.png"
+OG_IMAGE = BASE + "/assets/img/og-default.png"   # 권장: 1200x630 raster로 교체
+LOGO_IMAGE = BASE + "/assets/img/logo-512.png"
 # 매거진 발행일 기준(최신글부터 역순으로 부여)
 PUB_BASE = date(2026, 5, 29)
 PUB_GAP_DAYS = 3

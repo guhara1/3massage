@@ -68,11 +68,10 @@
 ## 이미지 / 로고
 
 - 헤더 로고는 경량 SVG(`assets/img/logo.svg`, 약 1KB · 무손실 확대)로 전 페이지에 사용됩니다.
-- `assets/img/THREE_MASSAGE_transparent_logo.png`(원본, ~947KB)는 schema.org `logo` 용도로만 참조되며
-  브라우저 렌더에는 쓰이지 않습니다. 구글 로고/Discover 노출 품질을 더 높이려면 이 PNG를
-  512px 안팎으로 리사이즈해 교체하는 것을 권장합니다.
-- 소셜 공유 이미지는 `assets/img/og-default.svg`입니다. Discover/뉴스 썸네일 품질을 위해 1200×630 래스터(JPG/PNG)
-  교체를 권장합니다(교체 시 전 페이지 `og:image` 경로만 바꾸면 됩니다).
+- schema.org `logo`는 `assets/img/logo-512.png`(원본 로고를 512px로 리사이즈·여백 트림, 약 67KB)를 참조합니다.
+- 소셜 공유 이미지는 `assets/img/og-default.png`(1200×630, 약 100KB)입니다. 전 페이지 `og:image`/`twitter:image`에 적용됩니다.
+- 위 두 래스터는 `tools/make_images.py`로 원본 로고에서 재생성할 수 있습니다(Pillow + 나눔고딕 필요).
+  원본 고해상도 로고가 필요하면 별도 보관하세요(리포에서는 용량 절감을 위해 512px 버전만 유지).
 
 ## 로컬 미리보기
 
