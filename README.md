@@ -60,10 +60,19 @@
 
 ## 배포 전 확인
 
-- `BASE` 도메인: `tools/generate.py` 의 `BASE` 와 각 페이지 `canonical`/`og`/구조화 데이터의
-  `https://www.3massage.co.kr` 값을 실제 도메인으로 교체하세요.
-- `about/business.html` 의 사업자 정보(대표자·등록번호 등)를 실제 값으로 입력하세요.
+- 도메인은 `https://www.3massage.club` 기준으로 설정되어 있습니다. 변경 시 `tools/generate.py`의 `BASE`와
+  각 페이지 `canonical`/`og`/구조화 데이터 값을 함께 바꾸세요.
+- 사업자 정보(`about/business.html` 및 메인 신뢰 섹션)는 실제 값(YH LAB · 김유환 · 815-26-00585 · 파주 청석로 268)으로 반영되어 있습니다.
 - 루트 도메인 배포 기준의 절대경로(`/...`)를 사용합니다. 하위 경로 배포 시 경로 조정이 필요합니다.
+
+## 이미지 / 로고
+
+- 헤더 로고는 경량 SVG(`assets/img/logo.svg`, 약 1KB · 무손실 확대)로 전 페이지에 사용됩니다.
+- `assets/img/THREE_MASSAGE_transparent_logo.png`(원본, ~947KB)는 schema.org `logo` 용도로만 참조되며
+  브라우저 렌더에는 쓰이지 않습니다. 구글 로고/Discover 노출 품질을 더 높이려면 이 PNG를
+  512px 안팎으로 리사이즈해 교체하는 것을 권장합니다.
+- 소셜 공유 이미지는 `assets/img/og-default.svg`입니다. Discover/뉴스 썸네일 품질을 위해 1200×630 래스터(JPG/PNG)
+  교체를 권장합니다(교체 시 전 페이지 `og:image` 경로만 바꾸면 됩니다).
 
 ## 로컬 미리보기
 

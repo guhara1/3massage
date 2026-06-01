@@ -94,7 +94,7 @@ h1, h2, h3, h4 { margin: 0; line-height: 1.3; letter-spacing: -0.02em; font-weig
 /* Uploaded logo — rendered as a clean monochrome (white) mark on the dark header.
    (원본 글자가 딥그린이라 다크 배경에서 안 보여, 흰색 단색 처리로 가독성 확보) */
 .brand { display: flex; align-items: center; }
-.brand-logo { display: block; height: 60px; width: auto; filter: brightness(0) invert(1); }
+.brand-logo { display: block; height: 56px; width: auto; }
 
 /* Desktop menu */
 .nav-menu { display: flex; align-items: center; gap: 4px; }

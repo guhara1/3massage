@@ -12,7 +12,7 @@ import os, html, json
 from datetime import date, timedelta
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE = "https://www.3massage.co.kr"   # canonical base — change to the live domain
+BASE = "https://www.3massage.club"   # canonical base — change to the live domain
 PHONE_DISPLAY = "0508-202-4717"
 PHONE_TEL = "tel:05082024717"
 

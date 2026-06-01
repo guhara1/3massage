@@ -154,8 +154,8 @@
       '<header class="site-header">' +
         '<div class="container"><nav class="nav" aria-label="주요 메뉴">' +
           '<a class="brand" href="/" aria-label="쓰리 마사지 홈">' +
-            '<img class="brand-logo" src="/assets/img/THREE_MASSAGE_transparent_logo.png" ' +
-            'alt="쓰리 마사지" width="1536" height="1024" decoding="async"></a>' +
+            '<img class="brand-logo" src="/assets/img/logo.svg" ' +
+            'alt="쓰리 마사지" width="320" height="96" decoding="async"></a>' +
           '<ul class="nav-menu">' + buildDesktopMenu() + "</ul>" +
           '<div class="nav-cta">' +
             '<a class="btn btn--ghost" href="/service/price.html">가격표</a>' +
