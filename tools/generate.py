@@ -2415,38 +2415,123 @@ def build():
         f.write("window.POSTS = " + json.dumps(posts, ensure_ascii=False, indent=2) + ";\n")
     print(f"Wrote posts manifest with {len(posts)} entries (newest first).")
 
-    write_sitemap()
+    write_sitemap(posts)
 
 
-def write_sitemap():
-    """Enumerate every .html page (minus noindex) into sitemap.xml + robots.txt."""
-    urls = ["/"]
+def _w(path, content):
+    with open(os.path.join(ROOT, path), "w", encoding="utf-8") as f:
+        f.write(content)
+
+
+def write_sitemap(posts):
+    """Sitemaps (sitemap.xml=구글 인덱스, sitemap1.xml/sitemap-naver.xml=URL 셋),
+    RSS(rss.xml), robots.txt 생성. lastmod 포함으로 색인 촉진."""
+    from datetime import date
+    today = date.today().isoformat()
+
+    # date lookup by magazine slug (ISO)
+    pub = {p["slug"]: p["dateISO"] for p in posts}
+    newest = max((p["dateISO"] for p in posts), default=today)
+
+    # --- collect URLs with priority / lastmod ---
+    entries = []  # (loc, lastmod, changefreq, priority)
+    entries.append(("/", newest, "weekly", "1.0"))
     static = [
-        "service/massage.html", "service/program.html", "service/price.html",
-        "service/process.html", "service/checklist.html",
-        "areas/", "magazine/",
-        "faq/reservation.html", "faq/area.html", "faq/before-use.html",
-        "about/", "about/business.html", "about/contact.html",
+        ("areas/", "0.9"), ("magazine/", "0.8"),
+        ("service/massage.html", "0.7"), ("service/program.html", "0.7"),
+        ("service/price.html", "0.8"), ("service/process.html", "0.6"),
+        ("service/checklist.html", "0.6"),
+        ("faq/reservation.html", "0.6"), ("faq/area.html", "0.6"), ("faq/before-use.html", "0.6"),
+        ("about/", "0.5"), ("about/business.html", "0.4"), ("about/contact.html", "0.5"),
     ]
-    urls += ["/" + s for s in static]
+    for path, pr in static:
+        entries.append(("/" + path, today, "monthly", pr))
     for a in AREAS:
-        urls.append(f"/areas/{a['slug']}.html")
+        entries.append((f"/areas/{a['slug']}.html", today, "weekly", "0.9"))
     for a in AREAS:
-        urls.append(f"/magazine/{a['slug']}.html")
+        s = a["slug"]
+        entries.append((f"/magazine/{s}.html", pub.get(s, today), "monthly", "0.7"))
     for p in EXTRA_POSTS:
-        urls.append(f"/magazine/{p['slug']}.html")
+        s = p["slug"]
+        entries.append((f"/magazine/{s}.html", pub.get(s, today), "monthly", "0.7"))
 
-    items = "\n".join(f"  <url><loc>{BASE}{u}</loc></url>" for u in urls)
-    sitemap = ('<?xml version="1.0" encoding="UTF-8"?>\n'
-               '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-               f"{items}\n</urlset>\n")
-    with open(os.path.join(ROOT, "sitemap.xml"), "w", encoding="utf-8") as f:
-        f.write(sitemap)
-    robots = ("User-agent: *\nAllow: /\n\n"
-              f"Sitemap: {BASE}/sitemap.xml\n")
-    with open(os.path.join(ROOT, "robots.txt"), "w", encoding="utf-8") as f:
-        f.write(robots)
-    print(f"Wrote sitemap.xml ({len(urls)} urls) and robots.txt.")
+    def urlset(items):
+        body = "\n".join(
+            f"  <url><loc>{BASE}{loc}</loc><lastmod>{lm}</lastmod>"
+            f"<changefreq>{cf}</changefreq><priority>{pr}</priority></url>"
+            for loc, lm, cf, pr in items)
+        return ('<?xml version="1.0" encoding="UTF-8"?>\n'
+                '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+                f"{body}\n</urlset>\n")
+
+    full = urlset(entries)
+    # 구글: sitemap.xml + sitemap1.xml(동일 URL셋, 사용자 요청 명칭)
+    _w("sitemap.xml", full)
+    _w("sitemap1.xml", full)
+    # 네이버: 동일 URL셋(네이버 서치어드바이저 제출용 별칭)
+    _w("sitemap-naver.xml", full)
+
+    # 사이트맵 인덱스(검색엔진에 여러 사이트맵을 한 번에 안내)
+    idx = ('<?xml version="1.0" encoding="UTF-8"?>\n'
+           '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+           f"  <sitemap><loc>{BASE}/sitemap1.xml</loc><lastmod>{newest}</lastmod></sitemap>\n"
+           f"  <sitemap><loc>{BASE}/sitemap-naver.xml</loc><lastmod>{newest}</lastmod></sitemap>\n"
+           f"  <sitemap><loc>{BASE}/rss.xml</loc><lastmod>{newest}</lastmod></sitemap>\n"
+           "</sitemapindex>\n")
+    _w("sitemap-index.xml", idx)
+
+    # --- RSS 2.0 (최신 매거진 글) ---
+    def rfc822(iso):
+        from datetime import datetime
+        return datetime.fromisoformat(iso).strftime("%a, %d %b %Y 09:00:00 +0900")
+    cat_name = {c[0]: c[1] for c in []}  # placeholder; use CATS
+    items_rss = []
+    for p in posts[:20]:
+        link = f"{BASE}/magazine/{p['slug']}.html"
+        title = html.escape(p["title"])
+        desc = html.escape(p["excerpt"])
+        cn = html.escape(CATS.get(p["cat"], ""))
+        items_rss.append(
+            "    <item>\n"
+            f"      <title>{title}</title>\n"
+            f"      <link>{link}</link>\n"
+            f"      <guid isPermaLink=\"true\">{link}</guid>\n"
+            f"      <category>{cn}</category>\n"
+            f"      <pubDate>{rfc822(p['dateISO'])}</pubDate>\n"
+            f"      <description>{desc}</description>\n"
+            "    </item>")
+    rss = ('<?xml version="1.0" encoding="UTF-8"?>\n'
+           '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n'
+           "  <channel>\n"
+           "    <title>쓰리 마사지 매거진</title>\n"
+           f"    <link>{BASE}/magazine/</link>\n"
+           "    <description>수원·동탄·오산·용인·분당 생활권 피로 관리·출장마사지 이용 가이드</description>\n"
+           "    <language>ko</language>\n"
+           f"    <lastBuildDate>{rfc822(newest)}</lastBuildDate>\n"
+           f"    <atom:link href=\"{BASE}/rss.xml\" rel=\"self\" type=\"application/rss+xml\" />\n"
+           + "\n".join(items_rss) + "\n"
+           "  </channel>\n</rss>\n")
+    _w("rss.xml", rss)
+
+    # --- robots.txt (구글·네이버 봇 허용 + 사이트맵 다중 안내) ---
+    robots = (
+        "User-agent: *\n"
+        "Allow: /\n"
+        "\n"
+        "User-agent: Yeti\n"          # 네이버 검색 봇
+        "Allow: /\n"
+        "\n"
+        "User-agent: Googlebot\n"
+        "Allow: /\n"
+        "\n"
+        f"Sitemap: {BASE}/sitemap.xml\n"
+        f"Sitemap: {BASE}/sitemap1.xml\n"
+        f"Sitemap: {BASE}/sitemap-naver.xml\n"
+        f"Sitemap: {BASE}/sitemap-index.xml\n"
+        f"Sitemap: {BASE}/rss.xml\n"
+    )
+    _w("robots.txt", robots)
+    print(f"Wrote sitemaps ({len(entries)} urls), rss.xml ({min(len(posts),20)} items), robots.txt.")
 
 
 if __name__ == "__main__":
