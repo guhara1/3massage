@@ -60,7 +60,7 @@
 
 ## 배포 전 확인
 
-- 도메인은 `https://www.3massage.club` 기준으로 설정되어 있습니다. 변경 시 `tools/generate.py`의 `BASE`와
+- 도메인은 `https://3massage.club` 기준으로 설정되어 있습니다. 변경 시 `tools/generate.py`의 `BASE`와
   각 페이지 `canonical`/`og`/구조화 데이터 값을 함께 바꾸세요.
 - 사업자 정보(`about/business.html` 및 메인 신뢰 섹션)는 실제 값(YH LAB · 김유환 · 815-26-00585 · 파주 청석로 268)으로 반영되어 있습니다.
 - 루트 도메인 배포 기준의 절대경로(`/...`)를 사용합니다. 하위 경로 배포 시 경로 조정이 필요합니다.
