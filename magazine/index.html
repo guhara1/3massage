@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>매거진 | 생활 속 피로 관리·웰니스 가이드 | 쓰리 마사지</title>
+  <meta name="description" content="쓰리 마사지 매거진. 직장인 피로 관리, 가족·주거공간 케어, 지역별 웰니스 가이드, 출장마사지 이용 가이드, 서비스 안전 가이드까지 생활 속 휴식 정보를 전합니다.">
+  <link rel="canonical" href="https://3massage.club/magazine/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="매거진 | 쓰리 마사지">
+  <meta property="og:description" content="직장인 피로 관리·가족 케어·지역별 웰니스·이용 가이드·안전 가이드 콘텐츠.">
+  <meta property="og:locale" content="ko_KR">
+  <meta property="og:image" content="https://3massage.club/assets/img/og-default.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://3massage.club/assets/img/og-default.png">
+  <meta name="theme-color" content="#0c1016">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <link rel="alternate" type="application/rss+xml" title="쓰리 마사지 매거진" href="https://3massage.club/rss.xml">
+  <link rel="stylesheet" href="/assets/css/styles.css">
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+    {"@type":"ListItem","position":1,"name":"홈","item":"https://3massage.club/"},
+    {"@type":"ListItem","position":2,"name":"매거진","item":"https://3massage.club/magazine/"}
+  ]}
+  </script>
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <main>
+    <section class="page-head"><div class="container">
+      <nav class="breadcrumb" aria-label="현재 위치">
+        <a href="/">홈</a><span class="sep">›</span>
+        <span aria-current="page">매거진</span>
+      </nav>
+      <span class="eyebrow">Magazine</span>
+      <h1>생활 속 피로 관리·웰니스 가이드</h1>
+      <p>지역명만 바꾼 글이 아니라, 실제 생활권과 상황에 맞춘 피로 관리·휴식 이야기를 전합니다.
+         예약 정보는 각 지역 페이지에서, 생활 정보는 매거진에서 확인하세요.</p>
+    </div></section>
+
+    <section class="section"><div class="container">
+      <div class="cats" id="cats"></div>
+      <div class="grid grid-3" id="posts"></div>
+      <p id="empty" class="muted" style="display:none">해당 카테고리의 글이 아직 없습니다.</p>
+    </div></section>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="/assets/js/posts.js"></script>
+  <script src="/assets/js/site.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      var cats = window.SITE.MAG_CATS;
+      var params = new URLSearchParams(location.search);
+      var active = params.get("cat") || "all";
+      if (!cats.some(function(c){return c.slug===active;})) active = "all";
+
+      function catName(slug){ var c = cats.filter(function(x){return x.slug===slug;})[0]; return c?c.name:""; }
+
+      document.getElementById("cats").innerHTML = cats.map(function (c) {
+        return '<a class="cat-pill' + (c.slug===active?' active':'') + '" href="?cat=' + c.slug + '">' + c.name + '</a>';
+      }).join("");
+
+      // POSTS is newest-first; sort defensively by dateISO desc
+      var sorted = window.POSTS.slice().sort(function(a,b){return (b.dateISO||"").localeCompare(a.dateISO||"");});
+      var list = (active === "all") ? sorted : sorted.filter(function(p){return p.cat===active;});
+      document.getElementById("empty").style.display = list.length ? "none" : "block";
+      document.getElementById("posts").innerHTML = list.map(function (p) {
+        return '<a class="card post-card" href="/magazine/' + p.slug + '.html">' +
+          '<span class="post-cat">' + catName(p.cat) + '</span>' +
+          '<h3>' + p.title + '</h3><p>' + p.excerpt + '</p>' +
+          (p.date ? '<span class="post-date">발행 ' + p.date + '</span>' : '') +
+          '<span class="card-link">읽어보기</span></a>';
+      }).join("");
+
+      // reflect category in title for shareability
+      if (active !== "all") document.title = catName(active) + " | 쓰리 마사지 매거진";
+    });
+  </script>
+</body>
+</html>

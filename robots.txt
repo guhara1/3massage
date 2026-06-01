@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+User-agent: Yeti
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+Sitemap: https://3massage.club/sitemap.xml
+Sitemap: https://3massage.club/sitemap1.xml
+Sitemap: https://3massage.club/sitemap-naver.xml
+Sitemap: https://3massage.club/sitemap-index.xml
+Sitemap: https://3massage.club/rss.xml

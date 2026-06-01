@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="96" viewBox="0 0 320 96" role="img" aria-label="THREE MASSAGE">
+  <g fill="none" stroke-linecap="round">
+    <!-- 물결(이완) 라인 -->
+    <path d="M40 44 C70 30, 104 30, 150 42 C196 54, 250 54, 286 40" stroke="#e3c98f" stroke-width="3.4"/>
+    <path d="M48 54 C84 44, 130 44, 176 52 C214 58, 252 58, 280 50" stroke="#c9a86a" stroke-width="3"/>
+  </g>
+  <!-- 누운 형상 + 머리(점) -->
+  <circle cx="206" cy="26" r="8" fill="#c9a86a"/>
+  <path d="M150 44 C168 44, 188 40, 206 34 C214 31, 220 33, 224 40" fill="none" stroke="#e3c98f" stroke-width="3.4" stroke-linecap="round"/>
+  <!-- 워드마크 -->
+  <text x="160" y="80" text-anchor="middle" font-family="Pretendard, 'Apple SD Gothic Neo', sans-serif" font-size="22" letter-spacing="3" font-weight="700">
+    <tspan fill="#eef2f7">THREE </tspan><tspan fill="#c9a86a">MASSAGE</tspan>
+  </text>
+</svg>
