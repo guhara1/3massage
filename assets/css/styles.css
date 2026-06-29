@@ -460,3 +460,44 @@ article.prose a:hover { text-decoration-color: var(--gold); }
 @media (min-width: 941px) and (max-width: 1100px) {
   .dropdown--mega { min-width: 540px; }
 }
+
+/* ---------- 이용 후기 (Reviews) ---------- */
+.reviews-summary {
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+  background: var(--bg-2); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 20px 24px; margin-bottom: 22px;
+}
+.reviews-score { display: flex; flex-direction: column; align-items: center; line-height: 1.1; }
+.reviews-score b { font-size: 2.4rem; color: var(--gold-soft); font-weight: 800; }
+.reviews-score small { color: var(--text-3); font-size: .82rem; margin-top: 4px; }
+.stars { color: var(--gold); letter-spacing: 2px; font-size: 1.05rem; }
+.stars .off { color: var(--line); }
+.reviews-meta { color: var(--text-2); font-size: .95rem; }
+.reviews-meta b { color: var(--text); }
+.review-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.review-card {
+  background: var(--bg-3); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 18px 20px; display: flex; flex-direction: column;
+}
+.review-card .stars { font-size: .95rem; margin-bottom: 10px; }
+.review-card .r-body { color: var(--text-2); font-size: .96rem; margin: 0 0 14px; flex: 1; }
+.review-card .r-foot { display: flex; justify-content: space-between; align-items: center;
+  color: var(--text-3); font-size: .84rem; border-top: 1px solid var(--line); padding-top: 12px; }
+.review-card .r-author { color: var(--text); font-weight: 600; }
+.reviews-note { color: var(--text-3); font-size: .84rem; margin-top: 14px; }
+
+/* ---------- 롱테일 내부링크 (Topic links) ---------- */
+.topic-links { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.topic-links a {
+  display: block; background: var(--bg-2); border: 1px solid var(--line);
+  border-radius: var(--radius-sm); padding: 14px 16px; color: var(--text);
+  text-decoration: none; transition: border-color .2s, transform .2s;
+}
+.topic-links a:hover { border-color: var(--gold); transform: translateY(-2px); }
+.topic-links a b { display: block; font-size: .98rem; color: var(--text); margin-bottom: 4px; }
+.topic-links a span { display: block; color: var(--text-3); font-size: .85rem; }
+.topic-links a::after { content: "→"; color: var(--gold-soft); font-weight: 700; float: right; margin-top: -28px; }
+
+@media (max-width: 720px) {
+  .review-grid, .topic-links { grid-template-columns: 1fr; }
+}

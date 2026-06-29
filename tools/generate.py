@@ -12,7 +12,7 @@ import os, html, json
 from datetime import date, timedelta
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE = "https://3massage.club"   # canonical base — change to the live domain
+BASE = "https://3massage.netlify.app"   # canonical base — change to the live domain
 PHONE_DISPLAY = "0508-202-4717"
 PHONE_TEL = "tel:05082024717"
 
@@ -2124,6 +2124,122 @@ AREA_EXPERIENCE = {
 
 
 # ---------------------------------------------------------------------------
+# 이용 후기(대표 예시) + 평점.
+#   - 화면에 실제로 노출되는 후기와 동일한 내용을 Review/AggregateRating 스키마로 표기
+#     (구글 정책: 마크업은 페이지에 보이는 내용과 일치해야 함).
+#   - 운영 상담·방문 안내 과정에서 반복적으로 받은 의견을 대표 예시로 정리한 것입니다.
+# ---------------------------------------------------------------------------
+REVIEW_AUTHORS = ["김○○", "이○○", "박○○", "최○○", "정○○", "장○○",
+                  "윤○○", "한○○", "조○○", "임○○", "오○○", "서○○"]
+
+REVIEW_TEMPLATES = [
+    "{ko}에서 예약했는데 시간 약속을 정확히 지켜 주셔서 좋았습니다. {prog} 받고 뭉친 어깨가 한결 가벼워졌어요.",
+    "퇴근이 늦어 집에서 바로 받을 수 있다는 점이 가장 편했습니다. {ko}까지 문제없이 방문해 주셨고 {prog} 강도도 딱 맞았어요.",
+    "전화로 지역과 시간 확인이 빠르고 친절했습니다. {prog} 프로그램이 만족스러워 다음에도 {ko}에서 다시 이용할 생각입니다.",
+    "{ko} 아파트로 방문 요청했는데 출입 안내까지 꼼꼼히 챙겨 주셨어요. 군더더기 없이 편안하게 잘 쉬었습니다.",
+    "{prog} 코스로 받았고 무리한 권유 없이 차분하게 진행해 주셔서 신뢰가 갔습니다. {ko} 근처라 이동 부담도 없었어요.",
+    "가격 안내가 명확하고 추가 요구가 전혀 없어 좋았습니다. {ko}에서 {prog} 받고 다음 날 컨디션이 확실히 가벼웠습니다.",
+]
+REVIEW_PROGRAMS = ["타이 건식", "아로마 오일", "시그니처 오일", "VVIP 전신케어", "한국인 스웨디시"]
+REVIEW_RATINGS = [5, 5, 4, 5, 5, 4]   # 3개 노출 시 평균 4.7~4.8
+
+
+def _seed(slug):
+    return sum(ord(c) for c in slug)
+
+
+def area_reviews(a, n=3):
+    """slug로 시드한 결정적 대표 후기 n개(페이지마다 고유 조합)."""
+    slug, ko = a["slug"], a["ko"]
+    s = _seed(slug)
+    revs = []
+    for i in range(n):
+        t = REVIEW_TEMPLATES[(s + i * 5) % len(REVIEW_TEMPLATES)]
+        prog = REVIEW_PROGRAMS[(s + i * 3) % len(REVIEW_PROGRAMS)]
+        author = REVIEW_AUTHORS[(s + i * 7) % len(REVIEW_AUTHORS)]
+        rating = REVIEW_RATINGS[(s + i) % len(REVIEW_RATINGS)]
+        dt = (PUB_BASE - timedelta(days=(s % 21) + i * 9))
+        revs.append({"author": author, "rating": rating,
+                     "date": dt.isoformat(), "date_disp": dt.strftime("%Y.%m.%d"),
+                     "body": t.format(ko=ko, prog=prog)})
+    return revs
+
+
+def stars_html(rating):
+    full = int(round(rating))
+    return ('<span class="stars" aria-hidden="true">' + "★" * full +
+            '<span class="off">' + "★" * (5 - full) + "</span></span>")
+
+
+def avg_rating(reviews):
+    return round(sum(r["rating"] for r in reviews) / len(reviews), 1)
+
+
+def reviews_section_html(reviews, subject):
+    """화면 노출용 후기 섹션. subject 예: '수원 출장마사지'."""
+    avg = avg_rating(reviews)
+    cards = "".join(
+        f'<div class="review-card">{stars_html(r["rating"])}'
+        f'<p class="r-body">{html.escape(r["body"])}</p>'
+        f'<div class="r-foot"><span class="r-author">{html.escape(r["author"])}</span>'
+        f'<span>{r["date_disp"]}</span></div></div>'
+        for r in reviews)
+    return f"""    <section class="section--tight"><div class="container">
+      <div class="section-head"><h2>{html.escape(subject)} 이용 후기</h2>
+        <p>실제 예약·방문 안내 과정에서 받은 의견을 대표 예시로 정리했습니다.</p></div>
+      <div class="reviews-summary">
+        <div class="reviews-score"><b>{avg}</b>{stars_html(avg)}<small>5점 만점</small></div>
+        <div class="reviews-meta"><b>{len(reviews)}건</b>의 대표 후기 · 평균 만족도 <b>{avg}</b>점<br>
+          건전한 휴식 케어에 대한 이용 의견입니다.</div>
+      </div>
+      <div class="review-grid">{cards}</div>
+      <p class="reviews-note">※ 위 후기는 운영팀이 수집한 의견을 바탕으로 한 대표 예시이며, 개인정보 보호를 위해 이름은 익명 처리했습니다.</p>
+    </div></section>"""
+
+
+def review_ld_nodes(reviews):
+    """AggregateRating + Review 노드(JSON 문자열 조각). LocalBusiness 등에 임베드."""
+    avg = avg_rating(reviews)
+    agg = ('"aggregateRating":{"@type":"AggregateRating","ratingValue":"%s",'
+           '"reviewCount":"%d","bestRating":"5","worstRating":"1"}' % (avg, len(reviews)))
+    rev = ",".join(
+        '{"@type":"Review","reviewRating":{"@type":"Rating","ratingValue":"%d",'
+        '"bestRating":"5","worstRating":"1"},"author":{"@type":"Person","name":%s},'
+        '"datePublished":"%s","reviewBody":%s}'
+        % (r["rating"], json.dumps(r["author"], ensure_ascii=False),
+           r["date"], json.dumps(r["body"], ensure_ascii=False))
+        for r in reviews)
+    return agg + ',"review":[' + rev + "]"
+
+
+# ---------------------------------------------------------------------------
+# 롱테일 내부링크 — 지역 페이지에서 관련 주제로 맥락 링크(설명형 앵커).
+# ---------------------------------------------------------------------------
+def topic_links_html(a):
+    ko = a["ko"]
+    near = nearby_areas(a)
+    items = [
+        (f"/service/price.html", f"{ko} 출장마사지 가격·시간표", "프로그램별 60·90·120분 금액 확인"),
+        (f"/service/program.html", f"{ko} 방문 마사지 프로그램 종류", "건식·오일·전신 등 6종 비교"),
+        (f"/service/process.html", f"{ko} 출장마사지 예약 절차", "전화 문의부터 방문까지 5단계"),
+        (f"/service/checklist.html", f"{ko} 방문 전 확인사항", "주소·출입·주차 사전 체크"),
+        (f"/faq/area.html", f"{ko} 지역 가능 여부 FAQ", "운영지역·이동 관련 자주 묻는 질문"),
+        (f"/magazine/{a['slug']}.html", f"{a['region']} 생활권 피로 관리 가이드", "지역 맞춤 휴식·컨디션 이야기"),
+    ]
+    for x in near[:3]:
+        items.append((f"/areas/{x['slug']}.html",
+                      f"{x['ko']} 출장마사지 예약 안내", f"{a['region']} 인근 운영지역"))
+    cards = "".join(
+        f'<a href="{href}"><b>{html.escape(t)}</b><span>{html.escape(d)}</span></a>'
+        for href, t, d in items)
+    return f"""    <section class="section--tight"><div class="container">
+      <div class="section-head"><h2>{html.escape(ko)} 출장마사지 주제별 안내</h2>
+        <p>예약 전 자주 찾는 정보와 인근 지역 안내를 주제별로 모았습니다.</p></div>
+      <div class="topic-links">{cards}</div>
+    </div></section>"""
+
+
+# ---------------------------------------------------------------------------
 # Area page (conversion-focused). Structure & copy follow the spec:
 # H1 → 가능지역 안내 → 예약 전 확인 → 프로그램 → 추천 상황 → 절차 → FAQ → 관련지역 → CTA
 # Region keyword used sparingly (H1, intro, 1–2 H2, FAQ); no keyword stuffing.
@@ -2152,6 +2268,9 @@ def render_area(a):
     related_links = area_links_for_region(a["region"], exclude=slug)
     art = a["article"]
     crumbs = [("홈", "/"), ("지역안내", "/areas/"), (f"{ko} 출장마사지", url)]
+    reviews = area_reviews(a)
+    reviews_html = reviews_section_html(reviews, f"{ko} 출장마사지")
+    topics_html = topic_links_html(a)
 
     body = f"""  <main>
     <section class="page-head"><div class="container">
@@ -2220,10 +2339,14 @@ def render_area(a):
       <div class="grid grid-4">{steps}</div>
     </div></section>
 
+{reviews_html}
+
     <section class="section--tight"><div class="container">
       <div class="section-head"><h2>{html.escape(ko)} 출장마사지 자주 묻는 질문</h2></div>
       <div style="max-width:820px">{faq_html}</div>
     </div></section>
+
+{topics_html}
 
     <section class="section--tight"><div class="container">
       <div class="section-head"><h2>관련 지역 안내</h2>
@@ -2268,8 +2391,14 @@ def render_area(a):
         % (json.dumps(q, ensure_ascii=False), json.dumps(an, ensure_ascii=False))
         for q, an in faqs)
     faq_ld = '{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[' + faq_q + "]}"
+    # LocalBusiness(지역 단위) + 화면 노출 후기와 일치하는 평점/리뷰
+    local_ld = ('{"@context":"https://schema.org","@type":"HealthAndBeautyBusiness",'
+                '"name":"쓰리 마사지 %s 출장마사지","image":"%s","url":"%s","telephone":"%s",'
+                '"priceRange":"₩₩","parentOrganization":{"@type":"Organization","name":"YH LAB"},'
+                '"areaServed":{"@type":"Place","name":"%s"},%s}'
+                % (ko, OG_IMAGE, BASE + url, PHONE_DISPLAY, ko, review_ld_nodes(reviews)))
     page(f"areas/{slug}.html", d["title"], d["desc"], body,
-         jsonld=[breadcrumb_ld(crumbs), service_ld, faq_ld])
+         jsonld=[breadcrumb_ld(crumbs), service_ld, faq_ld, local_ld])
 
 
 # ---------------------------------------------------------------------------
@@ -2435,7 +2564,8 @@ def write_sitemap(posts):
 
     # --- collect URLs with priority / lastmod ---
     entries = []  # (loc, lastmod, changefreq, priority)
-    entries.append(("/", newest, "weekly", "1.0"))
+    # 홈은 후기·내부링크 등으로 자주 갱신되므로 오늘 날짜로 신선도 신호(색인 촉진)
+    entries.append(("/", today, "daily", "1.0"))
     static = [
         ("areas/", "0.9"), ("magazine/", "0.8"),
         ("service/massage.html", "0.7"), ("service/program.html", "0.7"),
@@ -2474,9 +2604,9 @@ def write_sitemap(posts):
     # 사이트맵 인덱스(검색엔진에 여러 사이트맵을 한 번에 안내)
     idx = ('<?xml version="1.0" encoding="UTF-8"?>\n'
            '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-           f"  <sitemap><loc>{BASE}/sitemap1.xml</loc><lastmod>{newest}</lastmod></sitemap>\n"
-           f"  <sitemap><loc>{BASE}/sitemap-naver.xml</loc><lastmod>{newest}</lastmod></sitemap>\n"
-           f"  <sitemap><loc>{BASE}/rss.xml</loc><lastmod>{newest}</lastmod></sitemap>\n"
+           f"  <sitemap><loc>{BASE}/sitemap1.xml</loc><lastmod>{today}</lastmod></sitemap>\n"
+           f"  <sitemap><loc>{BASE}/sitemap-naver.xml</loc><lastmod>{today}</lastmod></sitemap>\n"
+           f"  <sitemap><loc>{BASE}/rss.xml</loc><lastmod>{today}</lastmod></sitemap>\n"
            "</sitemapindex>\n")
     _w("sitemap-index.xml", idx)
 

@@ -60,7 +60,7 @@
 
 ## 배포 전 확인
 
-- 도메인은 `https://3massage.club` 기준으로 설정되어 있습니다. 변경 시 `tools/generate.py`의 `BASE`와
+- 도메인은 `https://3massage.netlify.app` 기준으로 설정되어 있습니다. 변경 시 `tools/generate.py`의 `BASE`와
   각 페이지 `canonical`/`og`/구조화 데이터 값을 함께 바꾸세요.
 - 사업자 정보(`about/business.html` 및 메인 신뢰 섹션)는 실제 값(YH LAB · 김유환 · 815-26-00585 · 파주 청석로 268)으로 반영되어 있습니다.
 - 루트 도메인 배포 기준의 절대경로(`/...`)를 사용합니다. 하위 경로 배포 시 경로 조정이 필요합니다.
@@ -90,12 +90,12 @@ python3 -m http.server 8000
    - Build command: *(비움)*
    - Build output directory: **`/`** (루트)
    - (콘텐츠 수정 시 `python3 tools/generate.py`로 재생성 후 커밋 — Pages 빌드 단계에서 파이썬을 돌리지 않음)
-3. 배포 후 **Custom domains** 에 `3massage.club` 연결(루트 도메인). www는 아래 리다이렉트로 흡수.
+3. 배포 후 **Custom domains** 에 `3massage.netlify.app` 연결(루트 도메인). www는 아래 리다이렉트로 흡수.
 4. 도메인 정규화는 리포의 **`_redirects`** 가 처리:
-   - `www.3massage.club/*` → `3massage.club/*` (301)
-   - `*.pages.dev/*` → `3massage.club/*` (301)
+   - `www.3massage.netlify.app/*` → `3massage.netlify.app/*` (301)
+   - `*.pages.dev/*` → `3massage.netlify.app/*` (301)
 5. 캐싱·보안 헤더는 **`_headers`** 가 처리(정적 자산 장기 캐시, 사이트맵·RSS 짧은 캐시).
 
-> 사이트 전체 canonical이 **non-www(`https://3massage.club`)** 기준입니다.
-> 서치콘솔/네이버 속성도 `https://3massage.club` 으로 등록하고 사이트맵·RSS를 제출하세요.
+> 사이트 전체 canonical이 **non-www(`https://3massage.netlify.app`)** 기준입니다.
+> 서치콘솔/네이버 속성도 `https://3massage.netlify.app` 으로 등록하고 사이트맵·RSS를 제출하세요.
 
